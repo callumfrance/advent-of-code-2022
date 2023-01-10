@@ -16,9 +16,17 @@ def full_range_containment(bigger: [int, int], smaller: [int, int]):
         return False
 
 
+def partial_range_containment(bigger: [int, int], smaller: [int, int]):
+    if bigger[0] <= smaller[1] and bigger[1] >= smaller[0]:
+        return True
+    else:
+        return False
+
+
 def range_check(line: [[int, int], [int, int]]):
     line = sorted_ranges(line[0], line[1])
-    return 1 if full_range_containment(line[0], line[1]) else 0
+    # return 1 if full_range_containment(line[0], line[1]) else 0
+    return 1 if partial_range_containment(line[0], line[1]) else 0
 
 
 def read_file(fname: str = 'input.txt'):
