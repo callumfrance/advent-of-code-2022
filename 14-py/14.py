@@ -18,17 +18,16 @@ def get_boundaries(rock_shapes: list[list[tuple[int, int]]]) -> tuple[int]:
     return (min_x, max_x, min_y, max_y)
 
 
-def add_rock_shape(current_terrain: list[bool, bool],
+def add_rock_shape(prior_terrain: list[bool, bool],
         bounds: tuple[int],
         in_rock_shape: list[tuple[int, int]]):
     # Adds a new shape of rock into the terrain map
+    working_terrain = prior_terrain
     segment_start = in_rock_shape[0]
     segment_end = in_rock_shape[1]
 
     delta_x = segment_end[0] - segment_start[0]
     delta_y = segment_end[1] - segment_start[1]
-
-    print(delta_x, delta_y, segment_start, segment_end)
 
     if delta_x != 0 and delta_y != 0:
         raise ValueError('line segment is diagonal')
@@ -40,24 +39,24 @@ def add_rock_shape(current_terrain: list[bool, bool],
 
     delta_x, delta_y = abs(delta_x), abs(delta_y)
 
-    print(delta_x, delta_y, segment_start, segment_end)
+    seg_offset = [segment_start[0] - bounds[0], segment_start[1] - bounds[2]]
 
     if delta_x > 0:
         for i in range(delta_x):
-            print('\t', i, delta_x, segment_start[0] - bounds[0] + i, segment_start[1] - bounds[2])
-            current_terrain[segment_start[0] - bounds[0] + i][segment_start[1] - bounds[2]] = True
+            # print('\tx', delta_x, i, seg_offset[1], seg_offset[0] + i)
+            working_terrain[seg_offset[1]][seg_offset[0] + i] = True
     elif delta_y > 0:
         for i in range(delta_y):
-            print('\t', i, delta_y, segment_start[0] - bounds[0], segment_start[1] - bounds[2] + i)
-            current_terrain[segment_start[0] - bounds[0]][segment_start[1] - bounds[2] + i] = True
+            # print('\ty', delta_y, i, seg_offset[1] + i, seg_offset[0])
+            working_terrain[seg_offset[1] + i][seg_offset[0]] = True
 
-    return current_terrain
+    return working_terrain
 
 
 def generate_terrain(rock_shapes: list[list[tuple[int, int]]],
         bounds: tuple[int]) -> list[bool, bool]:
     terrain = [[False] * (bounds[1] - bounds[0])] * (bounds[3] - bounds[2])
-    print(len(terrain), len(terrain[0]))
+    print('terrain has dimensions: ', len(terrain[0]), ' by ', len(terrain))
 
     for rock in rock_shapes:
         terrain = add_rock_shape(terrain, bounds, rock)
@@ -65,18 +64,33 @@ def generate_terrain(rock_shapes: list[list[tuple[int, int]]],
     return terrain
 
 
-def move_one_sand_block(terrain: list[bool, bool], current_sand_coords: tuple[int, int]):
+def move_one_sand_block(terrain: list[bool, bool], bounds: tuple[int]):
     # Moves sand one space
-    # Return terrain and sand_space if valid
     # Return updated terrain and False if came to rest
     # Return terrain and True if exited the map
-    pass
+    sand_start = (SAND_ORIGIN[0] - bounds[0], SAND_ORIGIN[1] - bounds[2])
+    print(sand_start)
+
+    # Check sand move 1 valid, blocked, or out of bounds
+    # Check sand move 2 valid, blocked, or out of bounds
+    # Check sand move 3 valid, blocked, or out of bounds
+
+    return terrain, True
 
 
-def simulate_sand_movement(start_terrain: list[bool, bool]) -> int:
+def simulate_sand_movement(terrain: list[bool, bool], bounds: tuple[int]) -> int:
     # Simulates all of the sand movement
     # Returns the number of sand units that come to rest before overflow
-    pass
+    counter = 0
+    working_terrain = terrain
+
+    while True:
+        working_terrain, validity = move_one_sand_block(working_terrain, bounds)
+
+        if validity == True:
+            return counter
+        else:
+            counter += 1
 
 
 def read_from_input(filename: str = 'input.txt') -> list[list[tuple[int, int]]]:
@@ -102,4 +116,5 @@ if __name__ == '__main__':
     rock_shapes = read_from_input()
     bounds = get_boundaries(rock_shapes)
     print(bounds)
-    generate_terrain(rock_shapes, bounds)
+    terrain = generate_terrain(rock_shapes, bounds)
+    simulate_sand_movement(terrain, bounds)
