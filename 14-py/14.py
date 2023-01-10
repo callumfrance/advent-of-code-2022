@@ -71,9 +71,24 @@ def move_one_sand_block(terrain: list[bool, bool], bounds: tuple[int]):
     sand_start = (SAND_ORIGIN[0] - bounds[0], SAND_ORIGIN[1] - bounds[2])
     print(sand_start)
 
-    # Check sand move 1 valid, blocked, or out of bounds
-    # Check sand move 2 valid, blocked, or out of bounds
-    # Check sand move 3 valid, blocked, or out of bounds
+    sand_options = []
+    for i in SAND_MOVES:
+        sand_options.append([sand_start[0] + i[0], sand_start[1] + i[1]])
+
+    print(terrain[sand_options[0][0]])
+       
+    for sand_move in sand_options:
+        if sand_move[0] < 0 or \
+                sand_move[0] > len(terrain[0]) or \
+                sand_move[1] < 0 or \
+                sand_move[1] > len(terrain):
+            # tile is out of bounds
+            print("Out of bounds detected")
+            # return terrain, True
+        elif terrain[sand_move[1]][sand_move[0]] == True:
+            print("tile blocked at", sand_move)
+        else:
+            print("tile open")
 
     return terrain, True
 
