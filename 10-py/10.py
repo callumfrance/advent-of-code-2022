@@ -10,6 +10,8 @@ SIGNAL_CYCLE_CHECKS: Final = (
 )
 
 
+INITIAL_CRT = ['.' * 40] * 6
+
 def noop(x_history: list[int], curr_x: int):
     x_history.append(curr_x)
 
@@ -68,9 +70,42 @@ def parse_input(filename: str = 'input.txt') -> list[list[str, int]]:
     return instructions
 
 
+def draw_crt(crt: list[list[str]], x_history: list[str]):
+    pixel_row_length = len(crt[0]) # 40
+    pixel_col_height = len(crt) # 6
+    total_pixels = pixel_col_height * pixel_row_length # 240
+
+    final_crt = []
+
+    for index, row in enumerate(crt):
+        pixel_offset = index * pixel_row_length
+
+        for pixel in range(pixel_row_length):
+            # pixel positions 0 to 39 for one row
+            # get current sprite location
+            sprite_location = x_history[pixel_offset + pixel]
+
+            if abs(pixel - sprite_location) <= 1:
+                # we can print here
+                row = row[:pixel] + '#' + row[(pixel + 1):]
+
+        final_crt.append(row)
+
+    return final_crt
+
+
+def print_crt(crt: list[list[str]] = INITIAL_CRT):
+    for row in crt:
+        print(row)
+
+
 if __name__ == '__main__':
     instructions = parse_input()
     x_history = perform_operations(instructions, [1])
     print(x_history)
     x_check_sum = perform_signal_cycle_checks(x_history)
     print(x_check_sum)
+
+    print_crt()
+    crt = draw_crt(INITIAL_CRT, x_history)
+    print_crt(crt)
