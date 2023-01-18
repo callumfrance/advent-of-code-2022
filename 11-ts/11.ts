@@ -90,13 +90,69 @@ const parseInput = async (filename = './input.txt'): Promise<Monkey[]> => {
   const f = await Deno.open(filename);
   const monkeys: Array<Monkey> = [];
 
+  let workingMonkey: Partial<Monkey> = {
+    items: [],
+    testConditions: {
+      mutatorValue: 0,
+      operation: '+',
+      testThreshold: 0,
+    },
+    passMonkey: 0,
+    failMonkey: 0,
+    inspectionCount: 0,
+  };
+
+  let workingTestConditions: TestConditions = {
+    mutatorValue: 0,
+    operation: '+',
+    testThreshold: 0,
+  };
+
   for await (const rawLine of readline(f)) {
     const line = new TextDecoder().decode(rawLine);
 
     if (line) {
-      // some data concerning a monkey
+      const splitLine = line.split(' ');
+
+      switch (splitLine[0]) {
+        case 'Monkey':
+          break;
+        case 'Starting':
+          workingMonkey.items = splitLine
+            .slice(2)
+            .map((item) => parseInt(item));
+          break;
+        case 'Operation:':
+          if (splitLine.slice(-1)[0] === 'old') {
+            workingTestConditions.mutatorValue = 'old';
+          } else {
+            workingTestConditions.mutatorValue = parseInt(
+              splitLine.slice(-1)[0]
+            );
+          }
+          workingTestConditions.operation = splitLine.slice(
+            -2,
+            -1
+          )[0] as Operation;
+          break;
+        case 'Test:':
+          workingTestConditions.testThreshold = parseInt(
+            splitLine.slice(-1)[0]
+          );
+          workingMonkey.testConditions = workingTestConditions;
+          break;
+        case 'If':
+          switch (splitLine[1]) {
+            case 'true:':
+              workingMonkey.passMonkey = parseInt(splitLine.slice(-1)[0]);
+              break;
+            case 'false:':
+              workingMonkey.failMonkey = parseInt(splitLine.slice(-1)[0]);
+              break;
+          }
+      }
     } else {
-      // empty line between two monkey entries
+      monkeys.push(workingMonkey as Monkey);
     }
   }
 
