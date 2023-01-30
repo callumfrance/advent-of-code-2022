@@ -53,7 +53,7 @@ const computeRound = (currentMonkeys: Monkey[]): Monkey[] => {
 };
 
 const calculateMonkeyBusiness = (monkeys: Monkey[]): number => {
-  let highestInspectionMonkeys: Monkey[] = [];
+  let highestInspectionMonkeys: Array<Monkey> = [];
 
   monkeys.forEach((currentMonkey: Monkey): void => {
     if (
@@ -68,6 +68,9 @@ const calculateMonkeyBusiness = (monkeys: Monkey[]): number => {
       highestInspectionMonkeys = [currentMonkey, highestInspectionMonkeys[1]];
     }
   });
+
+  console.log('printing the monkey business -');
+  console.log(highestInspectionMonkeys);
 
   return monkeyBusiness(
     highestInspectionMonkeys[0],
@@ -112,7 +115,7 @@ const parseInput = async (filename = './input.txt'): Promise<Monkey[]> => {
     const line = new TextDecoder().decode(rawLine);
 
     if (line) {
-      const splitLine = line.split(' ');
+      const splitLine = line.trim().split(' ');
 
       switch (splitLine[0]) {
         case 'Monkey':
@@ -148,13 +151,18 @@ const parseInput = async (filename = './input.txt'): Promise<Monkey[]> => {
               break;
             case 'false:':
               workingMonkey.failMonkey = parseInt(splitLine.slice(-1)[0]);
+              const finalMonkeyX = workingMonkey as Monkey;
+              monkeys.push(finalMonkeyX);
               break;
           }
+          break;
       }
-    } else {
-      monkeys.push(workingMonkey as Monkey);
     }
   }
+
+  console.log('printing all monkeys -');
+  console.log(monkeys[0]);
+  console.log(monkeys[2]);
 
   return monkeys;
 };
